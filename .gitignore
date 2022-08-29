@@ -127,3 +127,28 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Ignore common virtual environment directorys
+**/venv
+**/.venv
+
+# Ignore pycache directorys
+**/__pycache__
+
+# Ignore all files in data directorys
+**/data/*
+
+# Enable __init__
+!**/__init__.py
+
+# Django data files
+**/*.sqlite3
+
+# Django config files
+**/config/*
+**/config.ini
+**/config.env
+**/*.env
+
+# Ignore src dirs
+**/src
