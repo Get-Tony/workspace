@@ -1,19 +1,30 @@
-# workspace
-VSCode Workspace.
+# Workspace
 
+## 1.0 Requirements files
 
-## Current requirement sets
-1. Global base
-file: base.txt
-	- autopep8
-	- black
+### 1.1 Global base
 
-2. Jupyter Lab
-file: jupyterlab.txt
-	- *base.txt
-	- jupyterlab
+#### filename: base.txt
 
-3. Package development
-file: package_dev.txt
-	- *base.txt
-	- yolk3k
+All primary requirement files inherit from base.
+
+| Package | Description | Usage |
+| --- | --- | --- |
+| autopep8 | Automatic pep8 formatting. | Formats on file save. |
+| black | Recursive Strict re-formatter. | Run in project root. Format recursive current directory: ```pip black .``` |
+
+### 1.2 Jupyter Lab
+
+#### filename: jupyterlab.txt
+
+| Package | Description | Usage |
+| --- | --- | --- |
+| jupyterlab | Data Science platform. | Start environment: ```jupyterlab``` |
+
+### 1.3 Package development
+
+#### filename: package_dev.txt
+
+| Package | Description | Usage |
+| --- | --- | --- |
+| yolk3k | Search for python package information. | return package latest version: ```yolk -V <package_name>``` |
