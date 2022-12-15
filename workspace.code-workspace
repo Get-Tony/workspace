@@ -6,81 +6,18 @@
 	],
 	"settings": {
 		"cSpell.words": [
-			"allauth",
-			"asgi",
-			"autodocstring",
-			"autofetch",
-			"autopep",
-			"davidanson",
-			"donjayamanne",
-			"eamodio",
-			"envctl",
-			"esbenp",
-			"Firstname",
-			"Fullscreen",
-			"guestuser",
-			"jupyterlab",
-			"Lastname",
-			"levelname",
-			"logit",
-			"njpwerner",
-			"nostatic",
-			"Pylance",
-			"qwtel",
-			"runserver",
-			"tabnine",
-			"whitenoise",
-			"yzhang"
 		],
-		"workbench.startupEditor": "none",
-		"workbench.tree.indent": 20,
-		"workbench.tree.expandMode": "singleClick",
-		"workbench.tree.renderIndentGuides": "always",
-		"workbench.sideBar.location": "right",
-		"workbench.colorCustomizations": {
-			"tree.indentGuidesStroke": "#ffffff"
-		},
-  		"editor.mouseWheelZoom": true,		
-		  "python.languageServer": "Pylance",
 	},
 	"extensions": {
 		"recommendations": [
-			"donjayamanne.python-extension-pack",
-			"eamodio.gitlens",
-			"github.vscode-pull-request-github",
 			"ms-vscode.remote-repositories",
-			"njpwerner.autodocstring",
 			"ms-vscode-remote.remote-ssh",
 			"streetsidesoftware.code-spell-checker",
-			"yzhang.markdown-all-in-one",
-			"davidanson.vscode-markdownlint",
-			"esbenp.prettier-vscode",
-			"qwtel.sqlite-viewer"
 		]
 	},
 	"launch": {
 		"version": "0.2.0",
 		"configurations": [
-			{
-				"name": "Python: Run",
-				"type": "python",
-				"request": "launch",
-				"program": "${workspaceFolder}/run.py",
-				"console": "integratedTerminal",
-				"justMyCode": true,
-			},
-			{
-				"name": "Python: Django",
-				"type": "python",
-				"request": "launch",
-				"django": true,
-				"program": "${workspaceFolder}/manage.py",
-				"args": [
-					"runserver",
-				],
-				"console": "integratedTerminal",
-				"justMyCode": true,
-			},
 		]
 	},
 	"tasks": {
@@ -99,21 +36,3 @@
 ////    { "key": "alt+q", "command": "workbench.action.togglePanel"},
 ////    { "key": "alt+q", "command": "workbench.action.togglePanel", "when": "!terminalFocus"}
 //]
-
-
-// Export to User settings.
-//"tabnine.experimentalAutoImports": true,
-//"telemetry.telemetryLevel": "off",
-//"update.showReleaseNotes": false,
-//"window.titleBarStyle": "custom",
-//"window.autoDetectHighContrast": false,
-//"window.dialogStyle": "custom",
-//"window.menuBarVisibility": "toggle",
-//"window.restoreFullscreen": true,
-//"window.openFilesInNewWindow": "off",
-//"window.openFoldersInNewWindow": "off",
-//"window.openWithoutArgumentsInNewWindow": "off",
-//"redhat.telemetry.enabled": false,
-//"remote.SSH.remotePlatform": {
-//	"admin": "linux"
-//},
