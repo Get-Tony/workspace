@@ -10,8 +10,6 @@
 	},
 	"extensions": {
 		"recommendations": [
-			"ms-vscode.remote-repositories",
-			"ms-vscode-remote.remote-ssh",
 			"streetsidesoftware.code-spell-checker",
 		]
 	},
