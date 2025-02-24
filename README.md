@@ -6,51 +6,50 @@ An Ansible role that configures a development workspace with integrated tools an
 
 - Interactive Help System:
   - `workspace-help` command shows all available features
-  - Non-intrusive welcome message (respects SSH sessions)
+  - Non-intrusive welcome message (excludes SSH sessions)
 - Enhanced Shell Environment:
-  - Intelligent history management
-  - Smart command completion
-  - Colored output for common commands
+  - Intelligent history management with size controls
+  - Smart command completion and colored output
+  - VSCode terminal detection and compatibility
 - Integrated Development Tools:
-  - Terminator with custom keybinds (CTRL+-, CTRL+\, CTRL+T)
-  - Git with smart aliases and pretty logging
-  - Vim with modern defaults
-  - bat (enhanced cat with syntax highlighting)
-  - fzf (fuzzy finder) with preview integration
-  - fd-find (modern alternative to find)
+  - Terminator (CTRL+- split horizontal, CTRL+\ split vertical, CTRL+T new tab)
+  - Git with smart aliases and branch status indicators
+  - Vim with system clipboard integration
+  - bat for syntax-highlighted file viewing
+  - fzf with file/history/directory search
+  - fd-find as modern alternative to find
   - Additional tools: ncdu, htop, tree, xclip
 - Key Bindings:
-  - ALT-T: Fuzzy file search with preview
-  - CTRL-R: History search with preview/copy
+  - ALT-T: Fuzzy file search with bat preview
+  - CTRL-R: History search with preview/copy (CTRL-Y to copy)
   - ALT-C: Directory navigation with tree preview
   - CTRL-/: Toggle preview windows
-  - CTRL-Y: Copy command in history search
 - Quick Commands:
-  - vf: Fuzzy file opening in vim
+  - vf: Fuzzy find and open in vim
   - cf: Fuzzy directory navigation
   - kp: Interactive process killer
-  - g [alias]: Git shortcuts
+  - g: Git shortcuts (st, co, br, ci, lg)
 
 ## Requirements
 
 - Ansible 2.9+
 - Debian/Ubuntu system
-- Internet connection
+- Internet connection for package installation
 
-## Quick Start
+## Variables
 
-1. Required variables:
-
+### Required
 ```yaml
 workspace_git_user_name: ""    # Your Git username
 workspace_git_user_email: ""   # Your Git email address
 ```
 
-1. Optional configs in `defaults/main.yml`:
-
+### Optional
+All other configurations have sensible defaults in `defaults/main.yml`:
 - Git (editor, branch, tools)
 - Terminator (font, colors, behavior)
-- Shell (history, aliases)
+- Shell (history size, file size, control)
+- FZF integration settings
 
 ## Example Playbook
 
@@ -65,9 +64,9 @@ workspace_git_user_email: ""   # Your Git email address
 
 ## Usage
 
-1. Install: Run playbook
-2. Activate: `source ~/.bashrc` or restart your terminal
-3. Get Started: Type `workspace-help`
+1. Install: Run playbook with required variables
+2. Activate: `source ~/.bashrc` or restart terminal
+3. Explore: Run `workspace-help` to see available features
 
 ## License
 

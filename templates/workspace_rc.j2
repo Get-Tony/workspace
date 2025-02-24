@@ -76,6 +76,9 @@ export FZF_ALT_T_OPTS="
   --header 'CTRL-/ to toggle preview'
 "
 
+# Bind ALT-T to file search
+bind -x '"\et": "fzf-file-widget"'
+
 # Enhanced CTRL-R history search
 export FZF_CTRL_R_OPTS="
   --bind 'ctrl-y:execute-silent(echo -n {2..} | xclip -selection clipboard)+abort'
