@@ -3,15 +3,32 @@
   ansible.builtin.fail:
     msg: "This role only supports Debian/Ubuntu systems"
   when: ansible_os_family != "Debian"
+  tags: ['always']
 
 - name: Include package installation tasks
   ansible.builtin.include_tasks: debian.yml
+  tags: ['setup', 'packages']
 
 - name: Include shell configuration tasks
   ansible.builtin.include_tasks: shell.yml
+  tags: ['configuration', 'shell']
+
+- name: Include custom prompt configuration
+  ansible.builtin.template:
+    src: workspace_rc.j2
+    dest: "{{ workspace_config_paths.workspace_rc }}"
+    mode: "0644"
+  become: false
+  tags: ['configuration', 'prompt']
 
 - name: Include git configuration tasks
   ansible.builtin.include_tasks: git.yml
+  tags: ['configuration', 'git']
 
 - name: Include terminator configuration tasks
   ansible.builtin.include_tasks: terminator.yml
+  tags: ['configuration', 'terminal']
+
+- name: Include uninstall tasks
+  ansible.builtin.include_tasks: uninstall.yml
+  tags: ['never', 'uninstall']

@@ -1,0 +1,26 @@
+---
+- name: Remove workspace configuration files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ workspace_config_paths.workspace_rc }}"
+    - "{{ workspace_config_paths.git }}"
+    - "{{ workspace_config_paths.terminator }}"
+  become: false
+  tags: ["never", "uninstall"]
+
+- name: Remove workspace block from bashrc
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_env.HOME }}/.bashrc"
+    marker: "# {mark} WORKSPACE CONFIGURATION"
+    state: absent
+  become: false
+  tags: ["never", "uninstall"]
+
+- name: Notify user about manual package removal
+  ansible.builtin.debug:
+    msg: >
+      Workspace configuration has been removed. If you want to remove installed packages,
+      you can do so manually with: sudo apt remove {{ workspace_packages | join(' ') }}
+  tags: ["never", "uninstall"]

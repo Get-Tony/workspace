@@ -1,5 +1,11 @@
-# Workspace configuration file
-# This file is managed by Ansible - manual changes will be overwritten
+# Shell configuration - This file is managed by Ansible
+# Helper functions for terminal detection and environment setup
+
+# Utility function to detect terminal type safely
+is_vscode_terminal() {
+    [[ "${TERM_PROGRAM:-}" == "vscode" ]] && return 0
+    return 1
+}
 
 # Helper function to display workspace features
 workspace-help() {
@@ -34,20 +40,21 @@ workspace-help() {
     echo "  htop         → Process viewer"
 }
 
-# Check terminal type and environment
-is_vscode_terminal() {
-    [[ "$TERM_PROGRAM" == "vscode" ]] && return 0
-    return 1
-}
+# Basic shell configuration
+{% if not workspace_use_custom_prompt | default(true) %}
+# Using system default prompt
+{% else %}
+{{ lookup('template', 'prompt.j2') }}
+{% endif %}
 
-# Safely handle VSCode environment variables
+# Handle VSCode-specific settings
 if is_vscode_terminal; then
     # Unset problematic VSCode shell integration variables
     unset VSCODE_SHELL_INTEGRATION
     # Clear any existing vsc_ prefixed variables that might cause conflicts
-    for var in $(env | grep ^vsc_ | cut -d= -f1); do
-        unset "$var"
-    done
+    while IFS= read -r var; do
+        [[ -n "$var" ]] && unset "$var"
+    done < <(printenv | grep -o '^vsc_[^ =]*' || true)
 fi
 
 # Display welcome message only in interactive shells and when not in SSH session
@@ -162,73 +169,3 @@ alias g='git'
 
 # Alert alias for long running commands
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-
-# Prompt configuration functions
-__workspace_git_status() {
-    if ! command -v git &>/dev/null || ! git rev-parse --is-inside-work-tree &>/dev/null; then
-        return
-    fi
-
-    local branch status ahead behind stashed
-    branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-    status=$(git status --porcelain 2>/dev/null)
-
-    # Initialize counts to 0 if commands fail
-    ahead=$(git rev-list --count '@{upstream}..HEAD' 2>/dev/null || echo "0")
-    behind=$(git rev-list --count 'HEAD..@{upstream}' 2>/dev/null || echo "0")
-    stashed=$(git stash list 2>/dev/null | wc -l)
-
-    # Build status indicators
-    local indicators=""
-    [ -n "$status" ] && indicators+="*"  # Modified/Untracked files
-    [ -d ".git/rebase-merge" ] && indicators+="R"  # Rebase in progress
-    [ -d ".git/rebase-apply" ] && indicators+="R"  # Rebase in progress
-    [ -f ".git/MERGE_HEAD" ] && indicators+="M"    # Merge in progress
-    [ -f ".git/CHERRY_PICK_HEAD" ] && indicators+="C"  # Cherry-pick in progress
-    [ "$stashed" -gt 0 ] && indicators+="≡"  # Stashed changes
-    [ "$ahead" -gt 0 ] && indicators+="↑"     # Ahead of remote
-    [ "$behind" -gt 0 ] && indicators+="↓"    # Behind remote
-
-    # Output branch and status
-    if [ -n "$indicators" ]; then
-        echo -n " [${branch}|${indicators}]"
-    else
-        echo -n " [${branch}]"
-    fi
-}
-
-__workspace_set_prompt() {
-    local exit_code=$?
-    local c_reset='\[\033[0m\]'
-    local c_user='\[\033[38;5;71m\]'
-    local c_path='\[\033[38;5;74m\]'
-    local c_git='\[\033[38;5;175m\]'
-    local c_prompt='\[\033[38;5;250m\]'
-
-    # First line: user@host:path and git status if in repo
-    PS1="\n${c_user}\u@\h${c_reset}:${c_path}\w${c_reset}"
-
-    # Add git status if we're in a repo
-    local git_status=$(__workspace_git_status)
-    if [ -n "$git_status" ]; then
-        PS1+=" ${c_git}${git_status}${c_reset}"
-    fi
-
-    # Second line: prompt character
-    PS1+="\n${c_prompt}\$${c_reset} "
-
-    # Set terminal title if in xterm
-    case "$TERM" in
-        xterm*|rxvt*|alacritty|terminator)
-            PS1="\[\e]0;\u@\h: \w\a\]$PS1"
-            ;;
-    esac
-}
-
-# Set up prompt command based on terminal type
-if ! is_vscode_terminal; then
-    PROMPT_COMMAND=__workspace_set_prompt
-else
-    # Simplified prompt for VSCode terminal
-    PS1='\n\u@\h:\w\n\$ '
-fi

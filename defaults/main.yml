@@ -38,6 +38,7 @@ workspace_history_control: "ignoreboth"
 
 # Optional features
 workspace_install_pyenv: true
+workspace_use_custom_prompt: true  # Set to false to use system default prompt
 
 # Git configuration
 workspace_git_user_name: ""  # Required: Set your Git username
