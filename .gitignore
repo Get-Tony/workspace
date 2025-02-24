@@ -1,0 +1,14 @@
+*.retry
+*.pyc
+__pycache__/
+.pytest_cache/
+.coverage
+.tox/
+.cache/
+.env/
+.venv/
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store

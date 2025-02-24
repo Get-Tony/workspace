@@ -1,0 +1,17 @@
+---
+- name: Verify this is a Debian-based system
+  ansible.builtin.fail:
+    msg: "This role only supports Debian/Ubuntu systems"
+  when: ansible_os_family != "Debian"
+
+- name: Include package installation tasks
+  ansible.builtin.include_tasks: debian.yml
+
+- name: Include shell configuration tasks
+  ansible.builtin.include_tasks: shell.yml
+
+- name: Include git configuration tasks
+  ansible.builtin.include_tasks: git.yml
+
+- name: Include terminator configuration tasks
+  ansible.builtin.include_tasks: terminator.yml

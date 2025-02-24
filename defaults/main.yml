@@ -1,0 +1,59 @@
+---
+# User specific settings
+workspace_user: "{{ ansible_user_id }}"
+
+# Package list for Debian/Ubuntu systems
+workspace_packages:
+  - terminator
+  - git
+  - vim
+  - bat
+  - fzf
+  - fd-find
+  - ncdu
+  - htop
+  - tree
+  - xclip
+  - bash-completion
+
+# Default configuration paths
+workspace_config_paths:
+  terminator: "{{ ansible_env.HOME }}/.config/terminator"
+  git: "{{ ansible_env.HOME }}/.gitconfig"
+  workspace_rc: "{{ ansible_env.HOME }}/.workspace_rc"
+
+# Default integration settings
+workspace_fzf_integration:
+  default_command: "fd --type file --follow --hidden --exclude .git"
+  default_opts: "--ansi --border --height=80% --layout=reverse"
+  preview_command: "bat --style=numbers,changes --color=always {}"
+
+# Development environment versions (can be overridden)
+workspace_pyenv_version: "3.11.0"
+
+# Shell configuration
+workspace_history_size: 5000
+workspace_history_filesize: 5000
+workspace_history_control: "ignoreboth"
+
+# Optional features
+workspace_install_pyenv: true
+
+# Git configuration
+workspace_git_user_name: ""  # Required: Set your Git username
+workspace_git_user_email: ""  # Required: Set your Git email
+workspace_git_editor: "vim"
+workspace_git_default_branch: "main"
+workspace_git_diff_tool: "vimdiff"
+workspace_git_merge_tool: "vimdiff"
+workspace_git_credential_timeout: 3600
+
+# Terminator configuration
+workspace_terminator_font: "Monospace 10"
+workspace_terminator_scrollback_lines: 10000
+workspace_terminator_background_color: "#282a36"
+workspace_terminator_foreground_color: "#f8f8f2"
+workspace_terminator_cursor_shape: "underline"
+workspace_terminator_cursor_color: "#aaaaaa"
+workspace_terminator_copy_on_selection: true
+workspace_terminator_scrollback_infinite: true

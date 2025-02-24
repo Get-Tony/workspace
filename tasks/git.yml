@@ -1,0 +1,14 @@
+---
+- name: Configure Git Globally
+  ansible.builtin.template:
+    src: gitconfig.j2
+    dest: "{{ workspace_config_paths.git }}"
+    mode: "0644"
+  become: false
+
+- name: Set Git Credentials Helper
+  community.general.git_config:
+    name: credential.helper
+    scope: global
+    value: cache --timeout=3600
+  become: false

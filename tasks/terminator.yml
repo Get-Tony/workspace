@@ -1,0 +1,14 @@
+---
+- name: Ensure Terminator Config Directory Exists
+  ansible.builtin.file:
+    path: "{{ workspace_config_paths.terminator }}"
+    state: directory
+    mode: "0755"
+  become: false
+
+- name: Configure Terminator
+  ansible.builtin.template:
+    src: terminator_config.j2
+    dest: "{{ workspace_config_paths.terminator }}/config"
+    mode: "0644"
+  become: false

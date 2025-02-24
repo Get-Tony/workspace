@@ -1,0 +1,40 @@
+[core]
+    editor = {{ workspace_git_editor | default('vim') }}
+    pager = bat
+    whitespace = trailing-space,space-before-tab
+
+[color]
+    ui = auto
+
+[init]
+    defaultBranch = {{ workspace_git_default_branch | default('main') }}
+
+[pull]
+    rebase = false
+
+[alias]
+    st = status -sb
+    co = checkout
+    br = branch
+    ci = commit
+    df = diff
+    lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    unstage = reset HEAD --
+    last = log -1 HEAD
+
+[diff]
+    tool = {{ workspace_git_diff_tool | default('vimdiff') }}
+
+[merge]
+    tool = {{ workspace_git_merge_tool | default('vimdiff') }}
+    conflictstyle = diff3
+
+[help]
+    autocorrect = 1
+
+[user]
+    name = {{ workspace_git_user_name }}
+    email = {{ workspace_git_user_email }}
+
+[credential]
+    helper = cache --timeout={{ workspace_git_credential_timeout | default(3600) }}

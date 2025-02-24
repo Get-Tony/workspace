@@ -1,0 +1,38 @@
+---
+# Package names
+workspace_packages:
+  - terminator
+  - git
+  - vim
+  - bat
+  - fzf
+  - fd-find
+  - ncdu
+  - htop
+  - curl
+  - build-essential
+  - python3
+  - python3-pip
+
+# Configuration paths
+workspace_config_paths:
+  terminator: "{{ ansible_env.HOME }}/.config/terminator"
+  git: "{{ ansible_env.HOME }}/.gitconfig"
+  workspace_rc: "{{ ansible_env.HOME }}/.workspace_rc"
+  pyenv: "{{ ansible_env.HOME }}/.pyenv"
+
+# Development environment settings
+workspace_dev_env:
+  pyenv_version: "latest"
+
+# Integration settings
+workspace_fzf_integration:
+  default_command: "fd --type file --follow --hidden --exclude .git"
+  default_opts: "--ansi"
+  preview_command: "bat --style=numbers --color=always {}"
+
+# Shell configuration
+workspace_shell_config:
+  histsize: 5000
+  histfilesize: 5000
+  histcontrol: "ignoreboth"

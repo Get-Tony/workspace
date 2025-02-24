@@ -1,0 +1,25 @@
+---
+- name: Install Required Packages
+  ansible.builtin.package:
+    name: "{{ workspace_packages }}"
+    state: present
+    update_cache: true
+  become: true
+
+- name: Install Python development dependencies
+  ansible.builtin.package:
+    name:
+      - python3-dev
+      - libssl-dev
+      - zlib1g-dev
+      - libbz2-dev
+      - libreadline-dev
+      - libsqlite3-dev
+      - libncurses5-dev
+      - libncursesw5-dev
+      - xz-utils
+      - tk-dev
+      - libffi-dev
+      - liblzma-dev
+    state: present
+  become: true

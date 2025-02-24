@@ -1,0 +1,46 @@
+---
+- name: Create Workspace RC File
+  ansible.builtin.template:
+    src: workspace_rc.j2
+    dest: "{{ workspace_config_paths.workspace_rc }}"
+    mode: "0644"
+  become: false
+
+- name: Configure Development Environment Directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ workspace_config_paths.pyenv }}"
+  become: false
+
+- name: Install pyenv
+  ansible.builtin.git:
+    repo: https://github.com/pyenv/pyenv.git
+    dest: "{{ workspace_config_paths.pyenv }}"
+    version: master
+  become: false
+
+- name: Configure Bashrc
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_env.HOME }}/.bashrc"
+    marker: "# {mark} WORKSPACE CONFIGURATION"
+    block: |
+      # History configuration
+      HISTCONTROL={{ workspace_shell_config.histcontrol }}
+      HISTSIZE={{ workspace_shell_config.histsize }}
+      HISTFILESIZE={{ workspace_shell_config.histfilesize }}
+      shopt -s histappend
+      shopt -s checkwinsize
+
+      # Development environments
+      export PYENV_ROOT="{{ workspace_config_paths.pyenv }}"
+      export PATH="$PYENV_ROOT/bin:$PATH"
+      command -v pyenv >/dev/null && eval "$(pyenv init -)"
+
+      # Source workspace configuration
+      if [ -f {{ workspace_config_paths.workspace_rc }} ]; then
+        . {{ workspace_config_paths.workspace_rc }}
+      fi
+  become: false

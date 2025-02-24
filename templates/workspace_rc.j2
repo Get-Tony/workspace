@@ -1,0 +1,231 @@
+# Workspace configuration file
+# This file is managed by Ansible - manual changes will be overwritten
+
+# Helper function to display workspace features
+workspace-help() {
+    echo -e "\n=== Workspace Features Overview ===\n"
+    echo "Key Combinations:"
+    echo "  ALT-T         → Fuzzy file search"
+    echo "  CTRL-R        → Search command history"
+    echo "  ALT-C         → Directory navigation"
+    echo "  CTRL-/        → Toggle preview in FZF"
+    echo "  CTRL-Y        → Copy command in history search"
+    echo
+    echo "Custom Commands:"
+    echo "  vf           → Open files with vim + fzf"
+    echo "  cf           → Change directory with fzf"
+    echo "  kp           → Kill process (interactive)"
+    echo "  workspace-help → Show this help message"
+    echo
+    echo "Git Aliases:"
+    echo "  g st         → git status"
+    echo "  g co         → git checkout"
+    echo "  g br         → git branch"
+    echo "  g ci         → git commit"
+    echo "  g df         → git diff"
+    echo "  g lg         → git log (pretty format)"
+    echo
+    echo "Enhanced Tools:"
+    echo "  cat          → Enhanced with bat"
+    echo "  ls           → Color support + directory grouping"
+    echo "  fd           → Modern alternative to find"
+    echo "  tree         → Directory structure viewer"
+    echo "  ncdu         → Disk usage analyzer"
+    echo "  htop         → Process viewer"
+}
+
+# Check terminal type and environment
+is_vscode_terminal() {
+    [[ "$TERM_PROGRAM" == "vscode" ]] && return 0
+    return 1
+}
+
+# Safely handle VSCode environment variables
+if is_vscode_terminal; then
+    # Unset problematic VSCode shell integration variables
+    unset VSCODE_SHELL_INTEGRATION
+    # Clear any existing vsc_ prefixed variables that might cause conflicts
+    for var in $(env | grep ^vsc_ | cut -d= -f1); do
+        unset "$var"
+    done
+fi
+
+# Display welcome message only in interactive shells and when not in SSH session
+if [[ $- == *i* ]] && [[ -z "${SSH_TTY}" ]] && [[ -z "${SSH_CONNECTION}" ]]; then
+    echo -e "\nWelcome to your enhanced workspace! Type 'workspace-help' to see available features.\n"
+fi
+
+# Enable color support
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto --group-directories-first --sort=version'
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+# FZF configuration
+export FZF_DEFAULT_COMMAND="fd --type f --follow --hidden --exclude .git"
+export FZF_DEFAULT_OPTS="{{ workspace_fzf_integration.default_opts }}"
+
+# Modified CTRL-T to ALT-T for file search (avoiding Terminator conflict)
+export FZF_ALT_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_T_OPTS="
+  --preview '{{ workspace_fzf_integration.preview_command }}'
+  --bind 'ctrl-/:change-preview-window(down|hidden|)'
+  --header 'CTRL-/ to toggle preview'
+"
+
+# Enhanced CTRL-R history search
+export FZF_CTRL_R_OPTS="
+  --bind 'ctrl-y:execute-silent(echo -n {2..} | xclip -selection clipboard)+abort'
+  --bind 'ctrl-/:toggle-preview'
+  --preview 'echo {2..} | bat --style=numbers --color=always'
+  --preview-window 'down:3:hidden:wrap'
+  --color header:italic
+  --header 'CTRL-Y to copy command, CTRL-/ to toggle preview'
+"
+
+# Enhanced directory navigation
+export FZF_ALT_C_COMMAND="fd --type d --follow --hidden --exclude .git"
+export FZF_ALT_C_OPTS="
+  --preview 'tree -C {}'
+"
+
+# Load shell completions and key bindings based on terminal type
+if ! is_vscode_terminal; then
+    # Standard terminal configuration
+    if [ -f /usr/share/bash-completion/bash_completion ]; then
+        . /usr/share/bash-completion/bash_completion
+    fi
+
+    # FZF configuration only for standard terminals
+    if [ -f /usr/share/doc/fzf/examples/completion.bash ]; then
+        source /usr/share/doc/fzf/examples/completion.bash
+    fi
+    if [ -f /usr/share/doc/fzf/examples/key-bindings.bash ]; then
+        source /usr/share/doc/fzf/examples/key-bindings.bash
+    fi
+fi
+
+# Bat configuration
+export BAT_THEME="ansi"
+export BAT_STYLE="numbers,changes,header"
+if command -v batcat >/dev/null; then
+    alias bat='batcat'
+    alias cat='batcat --paging=never'
+elif command -v bat >/dev/null; then
+    alias cat='bat --paging=never'
+fi
+
+# fd-find configuration
+command -v fdfind >/dev/null && alias fd=fdfind  # Debian systems use 'fdfind' name
+
+# Integration between tools
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+export MANROFFOPT="-c"
+export EDITOR="vim"
+
+# FZF-enhanced commands
+vf() {
+    local file
+    local preview_cmd
+    if command -v batcat >/dev/null; then
+        preview_cmd='batcat --style=numbers --color=always'
+    elif command -v bat >/dev/null; then
+        preview_cmd='bat --style=numbers --color=always'
+    else
+        preview_cmd='cat'
+    fi
+    file=$(fd --type f --follow --hidden --exclude .git | fzf --preview "${preview_cmd} {}")
+    [ -n "$file" ] && vim "$file"
+}
+
+cf() {
+    local dir
+    dir=$(fd --type d --follow --hidden --exclude .git | fzf --preview 'tree -C {}')
+    [ -n "$dir" ] && cd "$dir"
+}
+
+kp() { kill -9 "$(ps -ef | fzf --multi | awk '{print $2}')"; }
+
+# Additional useful aliases
+alias ll='ls -lah'
+alias la='ls -A'
+alias l='ls -CF'
+alias df='df -h'
+alias du='du -h'
+alias g='git'
+
+# Alert alias for long running commands
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+# Prompt configuration functions
+__workspace_git_status() {
+    if ! command -v git &>/dev/null || ! git rev-parse --is-inside-work-tree &>/dev/null; then
+        return
+    fi
+
+    local branch status ahead behind stashed
+    branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+    status=$(git status --porcelain 2>/dev/null)
+
+    # Initialize counts to 0 if commands fail
+    ahead=$(git rev-list --count '@{upstream}..HEAD' 2>/dev/null || echo "0")
+    behind=$(git rev-list --count 'HEAD..@{upstream}' 2>/dev/null || echo "0")
+    stashed=$(git stash list 2>/dev/null | wc -l)
+
+    # Build status indicators
+    local indicators=""
+    [ -n "$status" ] && indicators+="*"  # Modified/Untracked files
+    [ -d ".git/rebase-merge" ] && indicators+="R"  # Rebase in progress
+    [ -d ".git/rebase-apply" ] && indicators+="R"  # Rebase in progress
+    [ -f ".git/MERGE_HEAD" ] && indicators+="M"    # Merge in progress
+    [ -f ".git/CHERRY_PICK_HEAD" ] && indicators+="C"  # Cherry-pick in progress
+    [ "$stashed" -gt 0 ] && indicators+="≡"  # Stashed changes
+    [ "$ahead" -gt 0 ] && indicators+="↑"     # Ahead of remote
+    [ "$behind" -gt 0 ] && indicators+="↓"    # Behind remote
+
+    # Output branch and status
+    if [ -n "$indicators" ]; then
+        echo -n " [${branch}|${indicators}]"
+    else
+        echo -n " [${branch}]"
+    fi
+}
+
+__workspace_set_prompt() {
+    local exit_code=$?
+    local c_reset='\[\033[0m\]'
+    local c_user='\[\033[38;5;71m\]'
+    local c_path='\[\033[38;5;74m\]'
+    local c_git='\[\033[38;5;175m\]'
+    local c_prompt='\[\033[38;5;250m\]'
+
+    # First line: user@host:path and git status if in repo
+    PS1="\n${c_user}\u@\h${c_reset}:${c_path}\w${c_reset}"
+
+    # Add git status if we're in a repo
+    local git_status=$(__workspace_git_status)
+    if [ -n "$git_status" ]; then
+        PS1+=" ${c_git}${git_status}${c_reset}"
+    fi
+
+    # Second line: prompt character
+    PS1+="\n${c_prompt}\$${c_reset} "
+
+    # Set terminal title if in xterm
+    case "$TERM" in
+        xterm*|rxvt*|alacritty|terminator)
+            PS1="\[\e]0;\u@\h: \w\a\]$PS1"
+            ;;
+    esac
+}
+
+# Set up prompt command based on terminal type
+if ! is_vscode_terminal; then
+    PROMPT_COMMAND=__workspace_set_prompt
+else
+    # Simplified prompt for VSCode terminal
+    PS1='\n\u@\h:\w\n\$ '
+fi
