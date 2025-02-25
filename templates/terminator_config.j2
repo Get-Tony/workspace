@@ -1,28 +1,27 @@
 [global_config]
+  focus = system
   window_state = maximise
   title_hide_sizetext = True
-  focus = system
   suppress_multiple_term_dialog = True
   title_use_system_font = False
 
 [keybindings]
-  split_horiz = <Primary>minus
-  split_vert = <Primary>backslash
-  close_term = <Primary>w
+  split_horiz = <Primary>h
+  split_vert = <Primary>v
   new_tab = <Primary>t
 
 [profiles]
   [[default]]
+    background_color = "{{ workspace_terminator_background_color }}"
     cursor_shape = {{ workspace_terminator_cursor_shape }}
     cursor_color = "{{ workspace_terminator_cursor_color }}"
     font = {{ workspace_terminator_font }}
+    foreground_color = "{{ workspace_terminator_foreground_color }}"
     scrollback_lines = {{ workspace_terminator_scrollback_lines }}
+    scrollback_infinite = {{ workspace_terminator_scrollback_infinite | lower }}
+    palette = "#262626:#e356a7:#42e66c:#e4f34a:#9b6bdf:#e64747:#75d7ec:#efa554:#7a7a7a:#ff79c6:#50fa7b:#f1fa8c:#bd93f9:#ff5555:#8be9fd:#ffb86c"
     use_system_font = False
     copy_on_selection = {{ workspace_terminator_copy_on_selection | lower }}
-    background_color = "{{ workspace_terminator_background_color }}"
-    foreground_color = "{{ workspace_terminator_foreground_color }}"
-    palette = "#262626:#e356a7:#42e66c:#e4f34a:#9b6bdf:#e64747:#75d7ec:#efa554:#7a7a7a:#ff79c6:#50fa7b:#f1fa8c:#bd93f9:#ff5555:#8be9fd:#ffb86c"
-    scrollback_infinite = {{ workspace_terminator_scrollback_infinite | lower }}
 
 [layouts]
   [[default]]
