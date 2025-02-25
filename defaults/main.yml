@@ -50,7 +50,7 @@ workspace_git_merge_tool: "vimdiff"
 workspace_git_credential_timeout: 3600
 
 # Terminator configuration
-workspace_terminator_font: "Monospace 10"
+workspace_terminator_font: "Monospace 12"
 workspace_terminator_scrollback_lines: 10000
 workspace_terminator_background_color: "#282a36"
 workspace_terminator_foreground_color: "#f8f8f2"
