@@ -1,5 +1,7 @@
 ---
 galaxy_info:
+  role_name: workspace
+  namespace: get-tony
   author: Anthony Pagan
   description: A comprehensive workspace setup role with integrated development tools
   license: MIT

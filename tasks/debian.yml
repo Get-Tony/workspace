@@ -1,25 +1,50 @@
 ---
-- name: Install Required Packages
-  ansible.builtin.package:
-    name: "{{ workspace_packages }}"
-    state: present
+- name: Update apt cache
+  ansible.builtin.apt:
     update_cache: true
+    cache_valid_time: 3600
   become: true
+  tags:
+    - setup
+    - base
+    - packages
 
-- name: Install Python development dependencies
-  ansible.builtin.package:
-    name:
-      - python3-dev
-      - libssl-dev
-      - zlib1g-dev
-      - libbz2-dev
-      - libreadline-dev
-      - libsqlite3-dev
-      - libncurses5-dev
-      - libncursesw5-dev
-      - xz-utils
-      - tk-dev
-      - libffi-dev
-      - liblzma-dev
+- name: Install base packages
+  ansible.builtin.apt:
+    name: "{{ workspace_base_packages }}"
     state: present
   become: true
+  tags:
+    - setup
+    - base
+    - packages
+
+- name: Install development packages
+  ansible.builtin.apt:
+    name: "{{ workspace_feature_packages.development }}"
+    state: present
+  become: true
+  tags:
+    - setup
+    - development
+    - packages
+
+- name: Install terminal packages
+  ansible.builtin.apt:
+    name: "{{ workspace_feature_packages.terminal }}"
+    state: present
+  become: true
+  tags:
+    - setup
+    - terminal
+    - packages
+
+- name: Install utility packages
+  ansible.builtin.apt:
+    name: "{{ workspace_feature_packages.utils }}"
+    state: present
+  become: true
+  tags:
+    - setup
+    - utils
+    - packages

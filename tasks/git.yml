@@ -1,14 +1,12 @@
 ---
-- name: Configure Git Globally
-  ansible.builtin.template:
-    src: gitconfig.j2
-    dest: "{{ workspace_config_paths.git }}"
-    mode: "0644"
-  become: false
-
-- name: Set Git Credentials Helper
+- name: Ensure git user configuration exists
   community.general.git_config:
-    name: credential.helper
+    name: "{{ item.key }}"
     scope: global
-    value: cache --timeout=3600
-  become: false
+    value: "{{ item.value }}"
+  loop: "{{ workspace_git_config | dict2items }}"
+  tags:
+    - setup
+    - development
+    - git
+    - configuration

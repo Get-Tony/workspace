@@ -5,30 +5,40 @@
   when: ansible_os_family != "Debian"
   tags: ['always']
 
-- name: Include package installation tasks
+# Base system setup
+- name: Include debian-specific tasks
   ansible.builtin.include_tasks: debian.yml
-  tags: ['setup', 'packages']
+  when: ansible_os_family == "Debian"
+  tags:
+    - setup
+    - packages
+    - base
 
+# Shell environment setup
 - name: Include shell configuration tasks
   ansible.builtin.include_tasks: shell.yml
-  tags: ['configuration', 'shell']
+  tags:
+    - setup
+    - shell
+    - environment
 
-- name: Include custom prompt configuration
-  ansible.builtin.template:
-    src: workspace_rc.j2
-    dest: "{{ workspace_config_paths.workspace_rc }}"
-    mode: "0644"
-  become: false
-  tags: ['configuration', 'prompt']
-
+# Development tools setup
 - name: Include git configuration tasks
   ansible.builtin.include_tasks: git.yml
-  tags: ['configuration', 'git']
+  tags:
+    - setup
+    - development
+    - git
 
+# Terminal emulator setup
 - name: Include terminator configuration tasks
   ansible.builtin.include_tasks: terminator.yml
-  tags: ['configuration', 'terminal']
+  tags:
+    - setup
+    - terminal
+    - terminator
 
+# Uninstall capability
 - name: Include uninstall tasks
   ansible.builtin.include_tasks: uninstall.yml
   tags: ['never', 'uninstall']

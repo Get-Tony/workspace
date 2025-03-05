@@ -1,30 +1,93 @@
 ---
-- name: Create Workspace RC File
+# Base shell configuration
+- name: Ensure shell configuration directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ workspace_config_paths.config_dir }}"
+    - "{{ workspace_config_paths.local_bin }}"
+  tags:
+    - setup
+    - shell
+    - environment
+
+- name: Ensure workspace configuration directory exist
+  when: workspace_use_custom_prompt | default(true)
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ workspace_config_paths.workspace_dir }}"
+  tags:
+    - setup
+    - shell
+    - prompt
+    - environment
+
+- name: Configure shell prompt
+  ansible.builtin.template:
+    src: prompt.j2
+    dest: "{{ workspace_config_paths.prompt_config }}"
+    mode: "0644"
+  when: workspace_use_custom_prompt | default(true)
+  tags:
+    - setup
+    - shell
+    - prompt
+    - environment
+
+- name: Configure workspace RC file
   ansible.builtin.template:
     src: workspace_rc.j2
     dest: "{{ workspace_config_paths.workspace_rc }}"
     mode: "0644"
-  become: false
-  tags: ["configuration", "shell"]
+  tags:
+    - setup
+    - shell
+    - environment
 
-- name: Configure Development Environment Directories
+# Python environment setup
+- name: Install Python development tools
+  ansible.builtin.apt:
+    name:
+      - python3-dev
+    state: present
+  become: true
+  tags:
+    - setup
+    - development
+    - python
+    - packages
+
+- name: Ensure PyEnv install directory
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     mode: "0755"
   loop:
     - "{{ workspace_config_paths.pyenv }}"
-  become: false
+  when: workspace_install_pyenv | default(true)
+  tags:
+    - setup
+    - development
+    - python
 
-- name: Install pyenv
+- name: Clone PyEnv repository
   ansible.builtin.git:
     repo: https://github.com/pyenv/pyenv.git
     dest: "{{ workspace_config_paths.pyenv }}"
     version: master
   become: false
   when: workspace_install_pyenv | default(true)
-  tags: ["setup", "python"]
+  tags:
+    - setup
+    - development
+    - python
 
+# Shell environment configuration
 - name: Configure Bashrc
   ansible.builtin.blockinfile:
     path: "{{ ansible_env.HOME }}/.bashrc"
@@ -37,16 +100,32 @@
       shopt -s histappend
       shopt -s checkwinsize
 
-      # Pyenv configuration
+      # Python environment configuration
+      {% if workspace_install_pyenv | default(true) %}
       export PYENV_ROOT="{{ workspace_config_paths.pyenv }}"
       export PATH="$PYENV_ROOT/bin:$PATH"
       if command -v pyenv 1>/dev/null 2>&1; then
         eval "$(pyenv init -)"
       fi
+      {% endif %}
+
+      # Virtual environment utilities
+      venv-create() {
+        python3 -m venv "${1:-.venv}"
+        echo "Virtual environment created in ${1:-.venv}"
+      }
+
+      venv-activate() {
+        source "${1:-.venv}/bin/activate"
+      }
 
       # Source workspace configuration
       if [ -f {{ workspace_config_paths.workspace_rc }} ]; then
         . {{ workspace_config_paths.workspace_rc }}
       fi
   become: false
-  tags: ["configuration", "shell"]
+  tags:
+    - setup
+    - shell
+    - environment
+    - python

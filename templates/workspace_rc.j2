@@ -1,4 +1,5 @@
-# Shell configuration - This file is managed by Ansible
+{{ ansible_managed | comment }}
+# Shell configuration
 # Helper functions for terminal detection and environment setup
 
 # Utility function to detect terminal type safely
@@ -59,7 +60,7 @@ fi
 
 # Display welcome message only in interactive shells and when not in SSH session
 if [[ $- == *i* ]] && [[ -z "${SSH_TTY}" ]] && [[ -z "${SSH_CONNECTION}" ]]; then
-    echo -e "\nWelcome to your enhanced workspace! Type 'workspace-help' to see available features.\n"
+    echo -e "\nType 'workspace-help' to see available features.\n"
 fi
 
 # Enable color support
@@ -72,7 +73,7 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 # FZF configuration
-export FZF_DEFAULT_COMMAND="fd --type f --follow --hidden --exclude .git"
+export FZF_DEFAULT_COMMAND="{{ workspace_fzf_integration.default_command }}"
 export FZF_DEFAULT_OPTS="{{ workspace_fzf_integration.default_opts }}"
 
 # Modified CTRL-T to ALT-T for file search (avoiding Terminator conflict)
@@ -90,7 +91,7 @@ bind -x '"\et": "fzf-file-widget"'
 export FZF_CTRL_R_OPTS="
   --bind 'ctrl-y:execute-silent(echo -n {2..} | xclip -selection clipboard)+abort'
   --bind 'ctrl-/:toggle-preview'
-  --preview 'echo {2..} | bat --style=numbers --color=always'
+  --preview 'echo {2..} | {{ workspace_fzf_integration.preview_command }}'
   --preview-window 'down:3:hidden:wrap'
   --color header:italic
   --header 'CTRL-Y to copy command, CTRL-/ to toggle preview'

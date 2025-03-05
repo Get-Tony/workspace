@@ -11,21 +11,20 @@ An Ansible role that configures a development workspace with integrated tools an
   - Intelligent history management with size controls
   - Smart command completion and colored output
   - VSCode terminal detection and compatibility
-  - Custom prompt with git status integration (note: may conflict with prompt managers like Starship)
+  - Custom prompt with git status integration
+  - Python virtual environment indicator (py:venvname)
 - Integrated Development Tools:
-  - Terminator (CTRL+- split horizontal, CTRL+\ split vertical, CTRL+T new tab)
+  - Terminator (CTRL+h split horizontal, CTRL+v split vertical, CTRL+T new tab, CTRL+PgUp/PgDn switch tabs)
   - Git with smart aliases and branch status indicators
   - Vim with system clipboard integration
+  - Python environment with pyenv and virtualenv
   - bat for syntax-highlighted file viewing
   - fzf with file/history/directory search
   - fd-find as modern alternative to find
   - Additional tools: ncdu, htop, tree, xclip
-- Key Bindings:
-  - ALT-T: Fuzzy file search with bat preview
-  - CTRL-R: History search with preview/copy (CTRL-Y to copy)
-  - ALT-C: Directory navigation with tree preview
-  - CTRL-/: Toggle preview windows
 - Quick Commands:
+  - venv-create: Create Python virtual environment
+  - venv-activate: Activate Python virtual environment
   - vf: Fuzzy find and open in vim
   - cf: Fuzzy directory navigation
   - kp: Interactive process killer
@@ -39,25 +38,52 @@ You can customize the installation using Ansible tags:
 # Full installation with all features
 ansible-playbook playbook.yml
 
-# Install without custom prompt (use system default)
-ansible-playbook playbook.yml --skip-tags "prompt"
+# Install base packages only
+ansible-playbook playbook.yml --tags "base,packages"
 
-# Only install base packages and tools
-ansible-playbook playbook.yml --tags "setup"
+# Install and configure specific features
+ansible-playbook playbook.yml --tags "development"  # Git + Python tools
+ansible-playbook playbook.yml --tags "terminal"     # Terminator setup
+ansible-playbook playbook.yml --tags "shell"        # Shell environment
+ansible-playbook playbook.yml --tags "utils"        # Utility tools
 
-# Only configure tools without installing packages
+# Feature-specific installations
+ansible-playbook playbook.yml --tags "git"          # Git configuration
+ansible-playbook playbook.yml --tags "python"       # Python environment
+ansible-playbook playbook.yml --tags "prompt"       # Custom prompt only
+
+# Configuration only (no package installation)
 ansible-playbook playbook.yml --tags "configuration"
 
-# Uninstall workspace configuration
+# Remove workspace configuration
 ansible-playbook playbook.yml --tags "uninstall"
 ```
 
-### Available Tags
+### Feature Sets and Tags
 
-- `setup`: Install required packages
-- `configuration`: Configure tools and shell environment
-- `prompt`: Install custom prompt (can be skipped)
-- `uninstall`: Remove workspace configuration
+The role uses the following tag structure:
+
+1. Meta Tags:
+   - `setup`: Common tag for all installation tasks
+   - `configuration`: Configuration tasks only
+   - `packages`: Package installation tasks
+   - `uninstall`: Remove workspace configuration
+
+2. Feature Set Tags:
+   - `base`: Core system utilities
+   - `development`: Development tools (git, python)
+   - `terminal`: Terminal emulator setup
+   - `shell`: Shell environment and prompt
+   - `utils`: Additional utility tools
+
+3. Component Tags:
+   - `git`: Git-specific configuration
+   - `python`: Python environment setup
+   - `prompt`: Shell prompt configuration
+   - `environment`: Shell environment settings
+   - `terminator`: Terminal emulator setup
+
+Each task may have multiple tags to allow flexible installation options.
 
 ## Requirements
 
@@ -69,20 +95,48 @@ ansible-playbook playbook.yml --tags "uninstall"
 
 ### Required
 
+No variables are strictly required, but you should customize:
+
 ```yaml
-workspace_git_user_name: ""    # Your Git username
-workspace_git_user_email: ""   # Your Git email address
+workspace_git_user_name: "{{ ansible_env.USER }}"  # Defaults to system username
+workspace_git_user_email: "{{ ansible_env.USER }}@{{ ansible_fqdn }}"  # Defaults to username@hostname
 ```
 
-### Optional
+### Optional Settings
 
-All other configurations have sensible defaults in `defaults/main.yml`:
+Configuration variables in `defaults/main.yml`:
 
-- Git (editor, branch, tools)
-- Terminator (font, colors, behavior)
-- Shell (history size, file size, control)
-- FZF integration settings
-- `workspace_use_custom_prompt`: Set to false to use system default prompt
+```yaml
+# Feature toggles
+workspace_install_pyenv: true      # Enable/disable PyEnv installation
+workspace_use_custom_prompt: true  # Enable/disable custom prompt
+
+# Git configuration
+workspace_git_config:
+  core.editor: "vim"
+  init.defaultBranch: "main"
+  diff.tool: "vimdiff"
+  merge.tool: "vimdiff"
+  credential.helper: "cache --timeout=3600"
+
+# Terminal appearance
+workspace_terminator_settings:
+  font: "Monospace 12"
+  scrollback_lines: 10000
+  background_color: "#300a24"
+  foreground_color: "#ffffff"
+  cursor_shape: "underline"
+  cursor_color: "#aaaaaa"
+  copy_on_selection: false
+  scrollback_infinite: true
+  show_titlebar: true
+
+# Shell settings
+workspace_shell_config:
+  histsize: 5000
+  histfilesize: 5000
+  histcontrol: "ignoreboth"
+```
 
 ## Example Playbook
 
@@ -93,11 +147,13 @@ All other configurations have sensible defaults in `defaults/main.yml`:
       vars:
         workspace_git_user_name: "Jane Doe"
         workspace_git_user_email: "jane@example.com"
+        workspace_use_custom_prompt: true
+        workspace_install_pyenv: true
 ```
 
 ## Usage
 
-1. Install: Run playbook with required variables
+1. Install: Run playbook with desired tags and variables
 2. Activate: `source ~/.bashrc` or restart terminal
 3. Explore: Run `workspace-help` to see available features
 
@@ -105,50 +161,40 @@ All other configurations have sensible defaults in `defaults/main.yml`:
 
 ### Shell Integration
 
-This role provides two prompt options:
+The role provides a customizable shell environment with:
 
-1. Custom prompt with git status integration (default)
-2. System default prompt (when using --skip-tags "prompt" or setting workspace_use_custom_prompt: false)
-
-The custom prompt includes:
-
-- Two-line layout with user@host and current directory
-- Git branch and status indicators
-- Color-coded sections for better readability
+- Two-line prompt with git/venv status (when enabled)
+- Intelligent history management
 - VSCode terminal compatibility
+- Color-coded sections for better readability
 
-### Bashrc Modifications
+To use the system default prompt instead:
 
-This role modifies your ~/.bashrc file by adding a block between markers:
+- Set `workspace_use_custom_prompt: false` or
+- Use `--skip-tags "prompt"` during installation
 
-```bash
-# {mark} WORKSPACE CONFIGURATION
-# History configuration
-HISTCONTROL=ignoreboth
-HISTSIZE=5000
-HISTFILESIZE=5000
-shopt -s histappend
-shopt -s checkwinsize
+### Python Environment
 
-# Development environments
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-command -v pyenv >/dev/null && eval "$(pyenv init -)"
+The role provides two Python environment options:
 
-# Source workspace configuration
-if [ -f $HOME/.workspace_rc ]; then
-  . $HOME/.workspace_rc
-fi
-# {mark} WORKSPACE CONFIGURATION
-```
+1. PyEnv (when `workspace_install_pyenv: true`):
+   - Manages multiple Python versions
+   - Automatically added to PATH
+   - Initialized in shell environment
+
+2. Virtual Environments:
+   - Quick commands: `venv-create` and `venv-activate`
+   - Status shown in prompt when active
+   - Python 3 venv module pre-installed
 
 ### Uninstallation
 
-The uninstall tag will:
+The `uninstall` tag:
 
-- Remove workspace configuration files
-- Remove workspace-specific bashrc modifications
-- Leave installed packages intact (a command will be provided to remove them manually)
+- Removes all workspace configuration files
+- Cleans up bashrc modifications
+- Preserves installed packages
+- Provides commands for manual package removal
 
 ## License
 

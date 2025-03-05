@@ -5,6 +5,11 @@
     state: directory
     mode: "0755"
   become: false
+  tags:
+    - setup
+    - terminal
+    - terminator
+    - configuration
 
 - name: Configure Terminator
   ansible.builtin.template:
@@ -12,3 +17,8 @@
     dest: "{{ workspace_config_paths.terminator }}/config"
     mode: "0644"
   become: false
+  tags:
+    - setup
+    - terminal
+    - terminator
+    - configuration

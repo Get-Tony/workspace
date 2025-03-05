@@ -1,3 +1,11 @@
+{{ ansible_managed | comment }}
+__workspace_venv_status() {
+    if [ -n "${VIRTUAL_ENV}" ]; then
+        local venv_name=$(basename "${VIRTUAL_ENV}")
+        echo -n " (py:${venv_name})"
+    fi
+}
+
 # Prompt configuration functions
 __workspace_git_status() {
     if ! command -v git &>/dev/null || ! git rev-parse --is-inside-work-tree &>/dev/null; then
@@ -38,10 +46,17 @@ __workspace_set_prompt() {
     local c_user='\[\033[38;5;71m\]'
     local c_path='\[\033[38;5;74m\]'
     local c_git='\[\033[38;5;175m\]'
+    local c_venv='\[\033[38;5;114m\]'
     local c_prompt='\[\033[38;5;250m\]'
 
-    # First line: user@host:path and git status if in repo
+    # First line: user@host:path, venv status, and git status if in repo
     PS1="\n${c_user}\u@\h${c_reset}:${c_path}\w${c_reset}"
+
+    # Add virtual environment status
+    local venv_status=$(__workspace_venv_status)
+    if [ -n "$venv_status" ]; then
+        PS1+="${c_venv}${venv_status}${c_reset}"
+    fi
 
     # Add git status if we're in a repo
     local git_status=$(__workspace_git_status)
