@@ -42,15 +42,15 @@ ansible-playbook playbook.yml
 ansible-playbook playbook.yml --tags "base,packages"
 
 # Install and configure specific features
-ansible-playbook playbook.yml --tags "development"  # Git + Python tools
-ansible-playbook playbook.yml --tags "terminal"     # Terminator setup
-ansible-playbook playbook.yml --tags "shell"        # Shell environment
-ansible-playbook playbook.yml --tags "utils"        # Utility tools
+ansible-playbook playbook.yml --tags "setup,development"  # Git + Python tools
+ansible-playbook playbook.yml --tags "setup,terminal"     # Terminator setup
+ansible-playbook playbook.yml --tags "setup,shell"        # Shell environment
+ansible-playbook playbook.yml --tags "setup,utils"        # Utility tools
 
 # Feature-specific installations
-ansible-playbook playbook.yml --tags "git"          # Git configuration
-ansible-playbook playbook.yml --tags "python"       # Python environment
-ansible-playbook playbook.yml --tags "prompt"       # Custom prompt only
+ansible-playbook playbook.yml --tags "setup,git"          # Git configuration
+ansible-playbook playbook.yml --tags "setup,python"       # Python environment
+ansible-playbook playbook.yml --tags "setup,shell,prompt" # Custom prompt only
 
 # Configuration only (no package installation)
 ansible-playbook playbook.yml --tags "configuration"
