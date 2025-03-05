@@ -50,7 +50,7 @@ workspace_shell_config:
 
 # Terminal appearance
 workspace_terminator_settings:
-  font: "Monospace 12"
+  font: "Monospace 10"
   cursor_shape: "underline"
   cursor_color: "#aaaaaa"
   copy_on_selection: false
