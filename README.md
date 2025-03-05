@@ -110,32 +110,6 @@ Configuration variables in `defaults/main.yml`:
 # Feature toggles
 workspace_install_pyenv: true      # Enable/disable PyEnv installation
 workspace_use_custom_prompt: true  # Enable/disable custom prompt
-
-# Git configuration
-workspace_git_config:
-  core.editor: "vim"
-  init.defaultBranch: "main"
-  diff.tool: "vimdiff"
-  merge.tool: "vimdiff"
-  credential.helper: "cache --timeout=3600"
-
-# Terminal appearance
-workspace_terminator_settings:
-  font: "Monospace 12"
-  scrollback_lines: 10000
-  background_color: "#300a24"
-  foreground_color: "#ffffff"
-  cursor_shape: "underline"
-  cursor_color: "#aaaaaa"
-  copy_on_selection: false
-  scrollback_infinite: true
-  show_titlebar: true
-
-# Shell settings
-workspace_shell_config:
-  histsize: 5000
-  histfilesize: 5000
-  histcontrol: "ignoreboth"
 ```
 
 ## Example Playbook
