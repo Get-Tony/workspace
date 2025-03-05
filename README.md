@@ -32,31 +32,11 @@ An Ansible role that configures a development workspace with integrated tools an
 
 ## Installation Options
 
-You can customize the installation using Ansible tags:
+You can control the installation using Ansible tags like:
 
 ```yaml
-# Full installation with all features
-ansible-playbook playbook.yml
-
-# Install base packages only
-ansible-playbook playbook.yml --tags "base,packages"
-
-# Install and configure specific features
-ansible-playbook playbook.yml --tags "setup,development"  # Git + Python tools
-ansible-playbook playbook.yml --tags "setup,terminal"     # Terminator setup
-ansible-playbook playbook.yml --tags "setup,shell"        # Shell environment
-ansible-playbook playbook.yml --tags "setup,utils"        # Utility tools
-
-# Feature-specific installations
-ansible-playbook playbook.yml --tags "setup,git"          # Git configuration
-ansible-playbook playbook.yml --tags "setup,python"       # Python environment
-ansible-playbook playbook.yml --tags "setup,shell,prompt" # Custom prompt only
-
-# Configuration only (no package installation)
-ansible-playbook playbook.yml --tags "configuration"
-
-# Remove workspace configuration
-ansible-playbook playbook.yml --tags "uninstall"
+# Skip Terminator tasks
+ansible-playbook playbook.yml --skip-tags "terminator"
 ```
 
 ### Feature Sets and Tags
